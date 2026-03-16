@@ -2,11 +2,13 @@ import { useState } from "react";
 import ImageCompressor from "./components/ImageCompressor.jsx";
 import BackgroundRemover from "./components/BackgroundRemover.jsx";
 import ImageToPdf from "./components/ImageToPdf.jsx";
+import PhotoIdMaker from "./components/PhotoIdMaker.jsx";
 
 const TOOLS = [
   { id: "compressor", label: "Compressor", icon: "🗜️", desc: "Compress & resize gambar" },
   { id: "bgremover", label: "BG Remover", icon: "✂️", desc: "Hapus background foto" },
   { id: "img2pdf", label: "Image to PDF", icon: "📄", desc: "Gabung foto jadi satu PDF" },
+  { id: "photoid", label: "Photo ID Maker", icon: "🪪", desc: "Buat pas foto siap cetak" },
 ];
 
 export default function App() {
@@ -163,6 +165,7 @@ export default function App() {
         {active === "compressor" && <ImageCompressor />}
         {active === "bgremover" && <BackgroundRemover />}
         {active === "img2pdf" && <ImageToPdf />}
+        {active === "photoid" && <PhotoIdMaker />}
       </div>
     </div>
   );
