@@ -9,6 +9,7 @@ import JsonFormatter from "./components/JsonFormatter.jsx";
 import JwtDecoder from "./components/JwtDecoder.jsx";
 import EpochConverter from "./components/EpochConverter.jsx";
 import PasswordGenerator from "./components/PasswordGenerator.jsx";
+import PdfEditor from "./components/PdfEditor.jsx";
 
 const TOOL_GROUPS = [
   {
@@ -17,8 +18,14 @@ const TOOL_GROUPS = [
       { id: "compressor", label: "Compressor", icon: "🗜️", desc: "Compress & resize gambar" },
       { id: "bgremover", label: "BG Remover", icon: "✂️", desc: "Hapus background foto" },
       { id: "photoid", label: "Pas Foto Maker", icon: "🪪", desc: "Buat pas foto siap cetak" },
+    ],
+  },
+  {
+    category: "Document Tools",
+    tools: [
       { id: "img2pdf", label: "Image to PDF", icon: "📄", desc: "Gabung foto jadi satu PDF" },
       { id: "pdf2img", label: "PDF to Image", icon: "🖼️", desc: "Konversi PDF ke gambar" },
+      { id: "pdfeditor", label: "PDF Editor", icon: "📝", desc: "Edit, sign & annotate PDF" },
     ],
   },
   {
@@ -54,6 +61,7 @@ const COMPONENTS = {
   jwt: JwtDecoder,
   epoch: EpochConverter,
   password: PasswordGenerator,
+  pdfeditor: PdfEditor,
 };
 
 export default function App() {
