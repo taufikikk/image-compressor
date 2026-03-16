@@ -8,6 +8,7 @@ import QrCodeGenerator from "./components/QrCodeGenerator.jsx";
 import JsonFormatter from "./components/JsonFormatter.jsx";
 import JwtDecoder from "./components/JwtDecoder.jsx";
 import EpochConverter from "./components/EpochConverter.jsx";
+import PasswordGenerator from "./components/PasswordGenerator.jsx";
 
 const TOOL_GROUPS = [
   {
@@ -29,6 +30,12 @@ const TOOL_GROUPS = [
     ],
   },
   {
+    category: "Security Tools",
+    tools: [
+      { id: "password", label: "Password Gen", icon: "🔑", desc: "Generate password kuat" },
+    ],
+  },
+  {
     category: "Generator",
     tools: [
       { id: "qrcode", label: "QR Code", icon: "📱", desc: "Buat QR Code instan" },
@@ -46,6 +53,7 @@ const COMPONENTS = {
   json: JsonFormatter,
   jwt: JwtDecoder,
   epoch: EpochConverter,
+  password: PasswordGenerator,
 };
 
 export default function App() {
