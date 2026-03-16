@@ -2,18 +2,48 @@ import { useState } from "react";
 import ImageCompressor from "./components/ImageCompressor.jsx";
 import BackgroundRemover from "./components/BackgroundRemover.jsx";
 import ImageToPdf from "./components/ImageToPdf.jsx";
+import PdfToImage from "./components/PdfToImage.jsx";
 import PhotoIdMaker from "./components/PhotoIdMaker.jsx";
+import QrCodeGenerator from "./components/QrCodeGenerator.jsx";
 
-const TOOLS = [
-  { id: "compressor", label: "Compressor", icon: "🗜️", desc: "Compress & resize gambar" },
-  { id: "bgremover", label: "BG Remover", icon: "✂️", desc: "Hapus background foto" },
-  { id: "img2pdf", label: "Image to PDF", icon: "📄", desc: "Gabung foto jadi satu PDF" },
-  { id: "photoid", label: "Photo ID Maker", icon: "🪪", desc: "Buat pas foto siap cetak" },
+const TOOL_GROUPS = [
+  {
+    category: "Image Tools",
+    tools: [
+      { id: "compressor", label: "Compressor", icon: "🗜️", desc: "Compress & resize gambar" },
+      { id: "bgremover", label: "BG Remover", icon: "✂️", desc: "Hapus background foto" },
+      { id: "photoid", label: "Pas Foto Maker", icon: "🪪", desc: "Buat pas foto siap cetak" },
+    ],
+  },
+  {
+    category: "Document Tools",
+    tools: [
+      { id: "img2pdf", label: "Image to PDF", icon: "📄", desc: "Gabung foto jadi satu PDF" },
+      { id: "pdf2img", label: "PDF to Image", icon: "🖼️", desc: "Konversi PDF ke gambar" },
+    ],
+  },
+  {
+    category: "Generator",
+    tools: [
+      { id: "qrcode", label: "QR Code", icon: "📱", desc: "Buat QR Code instan" },
+    ],
+  },
 ];
+
+const COMPONENTS = {
+  compressor: ImageCompressor,
+  bgremover: BackgroundRemover,
+  img2pdf: ImageToPdf,
+  pdf2img: PdfToImage,
+  photoid: PhotoIdMaker,
+  qrcode: QrCodeGenerator,
+};
 
 export default function App() {
   const [active, setActive] = useState("compressor");
   const [sidebarOpen, setSidebarOpen] = useState(true);
+
+  const ActiveComponent = COMPONENTS[active];
 
   return (
     <div style={{
@@ -40,7 +70,7 @@ export default function App() {
       <div
         className={`sidebar ${!sidebarOpen ? 'sidebar-hidden' : ''}`}
         style={{
-          width: 220,
+          width: 230,
           minHeight: "100vh",
           background: "rgba(14,14,20,0.95)",
           borderRight: "1px solid #1e1e2a",
@@ -49,6 +79,7 @@ export default function App() {
           flexDirection: "column",
           transition: "transform 0.25s ease",
           flexShrink: 0,
+          overflowY: "auto",
         }}
       >
         {/* Logo */}
@@ -68,55 +99,60 @@ export default function App() {
               fontSize: 15, fontWeight: 700,
               background: "linear-gradient(135deg, #a5b4fc, #c4b5fd)",
               WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
-            }}>Image Toolkit</div>
+            }}>Web Toolkit</div>
             <div style={{ fontSize: 9, color: "#52525b", letterSpacing: "0.05em" }}>
               100% client-side
             </div>
           </div>
         </div>
 
-        {/* Nav label */}
-        <div style={{
-          fontSize: 10, fontWeight: 600, color: "#3f3f46",
-          padding: "0 10px", marginBottom: 8,
-          fontFamily: "'Plus Jakarta Sans', sans-serif",
-          letterSpacing: "0.08em", textTransform: "uppercase",
-        }}>Tools</div>
+        {/* Grouped tool list */}
+        {TOOL_GROUPS.map((group) => (
+          <div key={group.category} style={{ marginBottom: 16 }}>
+            {/* Category label */}
+            <div style={{
+              fontSize: 10, fontWeight: 600, color: "#3f3f46",
+              padding: "0 10px", marginBottom: 6,
+              fontFamily: "'Plus Jakarta Sans', sans-serif",
+              letterSpacing: "0.08em", textTransform: "uppercase",
+            }}>{group.category}</div>
 
-        {/* Tool list */}
-        <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-          {TOOLS.map((tool) => (
-            <button
-              key={tool.id}
-              onClick={() => { setActive(tool.id); setSidebarOpen(true); }}
-              style={{
-                display: "flex", alignItems: "center", gap: 10,
-                padding: "10px 12px",
-                borderRadius: 10,
-                border: "none",
-                background: active === tool.id
-                  ? "rgba(99,102,241,0.12)"
-                  : "transparent",
-                cursor: "pointer",
-                transition: "all 0.15s",
-                textAlign: "left",
-              }}
-            >
-              <span style={{ fontSize: 18 }}>{tool.icon}</span>
-              <div>
-                <div style={{
-                  fontFamily: "'Plus Jakarta Sans', sans-serif",
-                  fontSize: 13, fontWeight: active === tool.id ? 600 : 500,
-                  color: active === tool.id ? "#a5b4fc" : "#a1a1aa",
-                }}>{tool.label}</div>
-                <div style={{
-                  fontSize: 10,
-                  color: active === tool.id ? "#6366f1" : "#3f3f46",
-                }}>{tool.desc}</div>
-              </div>
-            </button>
-          ))}
-        </div>
+            {/* Tools in category */}
+            <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+              {group.tools.map((tool) => (
+                <button
+                  key={tool.id}
+                  onClick={() => { setActive(tool.id); if (window.innerWidth <= 768) setSidebarOpen(false); }}
+                  style={{
+                    display: "flex", alignItems: "center", gap: 10,
+                    padding: "9px 12px",
+                    borderRadius: 10,
+                    border: "none",
+                    background: active === tool.id
+                      ? "rgba(99,102,241,0.12)"
+                      : "transparent",
+                    cursor: "pointer",
+                    transition: "all 0.15s",
+                    textAlign: "left",
+                  }}
+                >
+                  <span style={{ fontSize: 17, width: 24, textAlign: "center" }}>{tool.icon}</span>
+                  <div>
+                    <div style={{
+                      fontFamily: "'Plus Jakarta Sans', sans-serif",
+                      fontSize: 13, fontWeight: active === tool.id ? 600 : 500,
+                      color: active === tool.id ? "#a5b4fc" : "#a1a1aa",
+                    }}>{tool.label}</div>
+                    <div style={{
+                      fontSize: 10,
+                      color: active === tool.id ? "#6366f1" : "#3f3f46",
+                    }}>{tool.desc}</div>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+        ))}
 
         {/* Footer */}
         <div style={{ marginTop: "auto", padding: "16px 10px" }}>
@@ -135,7 +171,7 @@ export default function App() {
       <button
         onClick={() => setSidebarOpen(!sidebarOpen)}
         style={{
-          position: "fixed", top: 12, left: sidebarOpen ? 232 : 12,
+          position: "fixed", top: 12, left: sidebarOpen ? 242 : 12,
           zIndex: 101,
           width: 36, height: 36, borderRadius: 10,
           background: "rgba(24,24,27,0.9)",
@@ -162,10 +198,7 @@ export default function App() {
         overflow: "auto",
         minHeight: "100vh",
       }}>
-        {active === "compressor" && <ImageCompressor />}
-        {active === "bgremover" && <BackgroundRemover />}
-        {active === "img2pdf" && <ImageToPdf />}
-        {active === "photoid" && <PhotoIdMaker />}
+        <ActiveComponent />
       </div>
     </div>
   );
