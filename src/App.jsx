@@ -5,6 +5,9 @@ import ImageToPdf from "./components/ImageToPdf.jsx";
 import PdfToImage from "./components/PdfToImage.jsx";
 import PhotoIdMaker from "./components/PhotoIdMaker.jsx";
 import QrCodeGenerator from "./components/QrCodeGenerator.jsx";
+import JsonFormatter from "./components/JsonFormatter.jsx";
+import JwtDecoder from "./components/JwtDecoder.jsx";
+import EpochConverter from "./components/EpochConverter.jsx";
 
 const TOOL_GROUPS = [
   {
@@ -13,13 +16,16 @@ const TOOL_GROUPS = [
       { id: "compressor", label: "Compressor", icon: "🗜️", desc: "Compress & resize gambar" },
       { id: "bgremover", label: "BG Remover", icon: "✂️", desc: "Hapus background foto" },
       { id: "photoid", label: "Pas Foto Maker", icon: "🪪", desc: "Buat pas foto siap cetak" },
+      { id: "img2pdf", label: "Image to PDF", icon: "📄", desc: "Gabung foto jadi satu PDF" },
+      { id: "pdf2img", label: "PDF to Image", icon: "🖼️", desc: "Konversi PDF ke gambar" },
     ],
   },
   {
-    category: "Document Tools",
+    category: "Developer Tools",
     tools: [
-      { id: "img2pdf", label: "Image to PDF", icon: "📄", desc: "Gabung foto jadi satu PDF" },
-      { id: "pdf2img", label: "PDF to Image", icon: "🖼️", desc: "Konversi PDF ke gambar" },
+      { id: "json", label: "JSON Formatter", icon: "{ }", desc: "Format & validasi JSON" },
+      { id: "jwt", label: "JWT Decoder", icon: "🔐", desc: "Decode & inspeksi JWT" },
+      { id: "epoch", label: "Epoch Converter", icon: "⏱️", desc: "Unix timestamp ↔ tanggal" },
     ],
   },
   {
@@ -37,6 +43,9 @@ const COMPONENTS = {
   pdf2img: PdfToImage,
   photoid: PhotoIdMaker,
   qrcode: QrCodeGenerator,
+  json: JsonFormatter,
+  jwt: JwtDecoder,
+  epoch: EpochConverter,
 };
 
 export default function App() {
