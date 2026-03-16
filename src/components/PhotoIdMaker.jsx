@@ -1,4 +1,5 @@
 import { useState, useRef, useCallback, useEffect } from "react";
+import { removeBackground } from "@imgly/background-removal";
 
 // Preset ukuran pas foto (dalam px @300dpi)
 const PHOTO_PRESETS = [
@@ -40,6 +41,9 @@ const btnBase = {
 export default function PhotoIdMaker() {
   const [file, setFile] = useState(null);
   const [imgSrc, setImgSrc] = useState(null);
+  const [noBgSrc, setNoBgSrc] = useState(null); // background-removed version
+  const [removingBg, setRemovingBg] = useState(false);
+  const [bgProgress, setBgProgress] = useState("");
   const [processedSrc, setProcessedSrc] = useState(null);
   const [preset, setPreset] = useState(PHOTO_PRESETS[1]); // 3x4 default
   const [bgColor, setBgColor] = useState(BG_COLORS[0]); // merah default
@@ -56,7 +60,8 @@ export default function PhotoIdMaker() {
 
   const canvasRef = useRef(null);
   const previewRef = useRef(null);
-  const imgRef = useRef(null);
+  const imgRef = useRef(null); // always holds the no-bg image for drawing
+  const originalImgRef = useRef(null); // original image
   const fileInputRef = useRef(null);
 
   const onFile = useCallback((e) => {
@@ -65,6 +70,11 @@ export default function PhotoIdMaker() {
     setFile(f);
     setSheetResult(null);
     setProcessedSrc(null);
+    setNoBgSrc(null);
+    setRemovingBg(true);
+    setBgProgress("Memuat model AI...");
+
+    // Load original image for display while removing bg
     const reader = new FileReader();
     reader.onload = (ev) => {
       setImgSrc(ev.target.result);
@@ -73,6 +83,26 @@ export default function PhotoIdMaker() {
       setOffsetY(0);
     };
     reader.readAsDataURL(f);
+
+    // Remove background
+    removeBackground(f, {
+      progress: (key, current, total) => {
+        if (key === "compute:inference") {
+          setBgProgress(`Menghapus background... ${Math.round((current / total) * 100)}%`);
+        } else if (key.startsWith("fetch:")) {
+          setBgProgress("Mengunduh model AI...");
+        }
+      },
+    }).then((blob) => {
+      const url = URL.createObjectURL(blob);
+      setNoBgSrc(url);
+      setRemovingBg(false);
+      setBgProgress("");
+    }).catch((err) => {
+      console.error("BG removal failed:", err);
+      setRemovingBg(false);
+      setBgProgress("Gagal menghapus background. Gunakan foto dengan background polos.");
+    });
   }, []);
 
   const onDrop = useCallback((e) => {
@@ -85,30 +115,46 @@ export default function PhotoIdMaker() {
     fileInputRef.current.dispatchEvent(new Event("change", { bubbles: true }));
   }, []);
 
-  // Draw preview
+  // Load original image (for preview while bg is being removed)
   useEffect(() => {
-    if (!imgSrc || !previewRef.current) return;
-    const canvas = previewRef.current;
-    const ctx = canvas.getContext("2d");
+    if (!imgSrc) return;
+    const img = new Image();
+    img.onload = () => {
+      originalImgRef.current = img;
+      if (!noBgSrc) {
+        imgRef.current = img;
+        redrawPreview();
+      }
+    };
+    img.src = imgSrc;
+  }, [imgSrc]);
+
+  // When no-bg image is ready, load it and use it for drawing
+  useEffect(() => {
+    if (!noBgSrc) return;
     const img = new Image();
     img.onload = () => {
       imgRef.current = img;
-      // Preview canvas = preset aspect ratio, display size
-      const displayH = 320;
-      const displayW = (preset.w / preset.h) * displayH;
-      canvas.width = displayW;
-      canvas.height = displayH;
-      drawPreview(ctx, img, displayW, displayH);
+      redrawPreview();
     };
-    img.src = imgSrc;
-  }, [imgSrc, preset]);
+    img.src = noBgSrc;
+  }, [noBgSrc]);
 
-  useEffect(() => {
+  function redrawPreview() {
     if (!imgRef.current || !previewRef.current) return;
     const canvas = previewRef.current;
     const ctx = canvas.getContext("2d");
-    drawPreview(ctx, imgRef.current, canvas.width, canvas.height);
-  }, [scale, offsetX, offsetY, bgColor, preset]);
+    const displayH = 320;
+    const displayW = (preset.w / preset.h) * displayH;
+    canvas.width = displayW;
+    canvas.height = displayH;
+    drawPreview(ctx, imgRef.current, displayW, displayH);
+  }
+
+  // Redraw on param changes
+  useEffect(() => {
+    redrawPreview();
+  }, [scale, offsetX, offsetY, bgColor, preset, noBgSrc]);
 
   function drawPreview(ctx, img, cw, ch) {
     ctx.clearRect(0, 0, cw, ch);
@@ -428,7 +474,9 @@ export default function PhotoIdMaker() {
             {/* Ganti Foto */}
             <button
               onClick={() => {
+                if (noBgSrc) URL.revokeObjectURL(noBgSrc);
                 setImgSrc(null); setFile(null); setProcessedSrc(null); setSheetResult(null);
+                setNoBgSrc(null); setRemovingBg(false); setBgProgress("");
                 setScale(1); setOffsetX(0); setOffsetY(0);
               }}
               style={{
@@ -468,6 +516,44 @@ export default function PhotoIdMaker() {
                   onTouchEnd={onMouseUp}
                 />
               </div>
+              {/* BG Removal status */}
+              {removingBg && (
+                <div style={{
+                  marginTop: 10, padding: "10px 14px",
+                  background: "rgba(99,102,241,0.1)",
+                  border: "1px solid rgba(99,102,241,0.2)",
+                  borderRadius: 8,
+                  display: "flex", alignItems: "center", gap: 10,
+                }}>
+                  <div style={{
+                    width: 18, height: 18, border: "2px solid #6366f1",
+                    borderTopColor: "transparent", borderRadius: "50%",
+                    animation: "spin 0.8s linear infinite",
+                  }} />
+                  <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+                  <span style={{ fontSize: 12, color: "#a5b4fc", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+                    {bgProgress}
+                  </span>
+                </div>
+              )}
+              {!removingBg && bgProgress && (
+                <div style={{
+                  marginTop: 10, padding: "10px 14px",
+                  background: "rgba(239,68,68,0.1)",
+                  border: "1px solid rgba(239,68,68,0.2)",
+                  borderRadius: 8, fontSize: 12, color: "#f87171",
+                  fontFamily: "'Plus Jakarta Sans', sans-serif",
+                }}>{bgProgress}</div>
+              )}
+              {!removingBg && noBgSrc && (
+                <div style={{
+                  marginTop: 10, padding: "10px 14px",
+                  background: "rgba(34,197,94,0.08)",
+                  border: "1px solid rgba(34,197,94,0.2)",
+                  borderRadius: 8, fontSize: 12, color: "#4ade80",
+                  fontFamily: "'Plus Jakarta Sans', sans-serif",
+                }}>Background berhasil dihapus. Pilih warna background baru.</div>
+              )}
             </div>
 
             {/* Processed result */}
