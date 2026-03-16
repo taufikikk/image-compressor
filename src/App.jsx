@@ -1,10 +1,12 @@
 import { useState } from "react";
 import ImageCompressor from "./components/ImageCompressor.jsx";
 import BackgroundRemover from "./components/BackgroundRemover.jsx";
+import ImageToPdf from "./components/ImageToPdf.jsx";
 
 const TOOLS = [
   { id: "compressor", label: "Compressor", icon: "🗜️", desc: "Compress & resize gambar" },
   { id: "bgremover", label: "BG Remover", icon: "✂️", desc: "Hapus background foto" },
+  { id: "img2pdf", label: "Image to PDF", icon: "📄", desc: "Gabung foto jadi satu PDF" },
 ];
 
 export default function App() {
@@ -160,6 +162,7 @@ export default function App() {
       }}>
         {active === "compressor" && <ImageCompressor />}
         {active === "bgremover" && <BackgroundRemover />}
+        {active === "img2pdf" && <ImageToPdf />}
       </div>
     </div>
   );

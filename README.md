@@ -6,6 +6,7 @@ All-in-one image tool — 100% client-side, tanpa upload ke server.
 
 - **🗜️ Image Compressor** — Compress & resize gambar dengan preset dokumen (KTP, Paspor, Visa, dll)
 - **✂️ Background Remover** — Hapus background foto dengan AI, ganti warna background
+- **📄 Image to PDF** — Gabung beberapa foto jadi satu PDF, drag reorder, pilih ukuran kertas
 
 ## Quick Start
 
@@ -24,4 +25,5 @@ npx vercel
 
 - React 18 + Vite 6
 - @imgly/background-removal (ONNX-based, client-side AI)
+- jsPDF (client-side PDF generation)
 - Canvas API
